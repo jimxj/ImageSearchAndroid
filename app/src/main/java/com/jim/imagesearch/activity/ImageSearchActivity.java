@@ -91,7 +91,7 @@ public class ImageSearchActivity extends ActionBarActivity {
 
   private void initFilterView() {
     vFilters.setVisibility(View.INVISIBLE);
-    vFilters.setAlpha(0.8f);
+    vFilters.setAlpha(0.95f);
 
 
     final Spinner spSize = (Spinner) vFilters.findViewById(R.id.spSize);
