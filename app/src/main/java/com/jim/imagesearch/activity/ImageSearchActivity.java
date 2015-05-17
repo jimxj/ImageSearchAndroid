@@ -1,25 +1,24 @@
 package com.jim.imagesearch.activity;
 
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.PopupWindow;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.jim.imagesearch.R;
 import com.jim.imagesearch.adapter.ImageGridArrayAdapter;
 import com.jim.imagesearch.api.GoogleImageSearchApi;
+import com.jim.imagesearch.model.SearchFilter;
 import com.jim.imagesearch.model.ImageResult;
 import com.jim.imagesearch.model.SearchImageResult;
 import com.jim.imagesearch.util.EndlessScrollListener;
@@ -55,8 +54,7 @@ public class ImageSearchActivity extends ActionBarActivity {
   int currentPage = 0;
 
   String currentKeyword;
-
-  //DrawerLayout mDrawerLayout;
+  SearchFilter searchFilter = new SearchFilter();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +64,10 @@ public class ImageSearchActivity extends ActionBarActivity {
     ButterKnife.inject(this);
     Fresco.initialize(this);
 
-//    headerView = LayoutInflater.from(this).inflate(R.layout.view_progress, null);
-//    //headerView.setVisibility(View.INVISIBLE);
-//    gridView.addHeaderView(headerView);
-
     imageAdapter = new ImageGridArrayAdapter(this, new ArrayList<ImageResult>());
     gridView.setAdapter(imageAdapter);
 
-    vFilters.setVisibility(View.INVISIBLE);
-    vFilters.setAlpha(0.8f);
+    initFilterView();
 
     gridView.setOnScrollListener(new EndlessScrollListener() {
 
@@ -84,7 +77,7 @@ public class ImageSearchActivity extends ActionBarActivity {
         if (totalItemsCount > currentPage * GoogleImageSearchApi.PAGE_SIZE) {
           Log.i(TAG, " fetch new page");
           currentPage++;
-          searchImageAsync(currentKeyword);
+          searchImageAsync();
         }
       }
     });
@@ -96,9 +89,65 @@ public class ImageSearchActivity extends ActionBarActivity {
     googleImageSearchApi = restAdapter.create(GoogleImageSearchApi.class);
   }
 
-  private void searchImageAsync(String q) {
+  private void initFilterView() {
+    vFilters.setVisibility(View.INVISIBLE);
+    vFilters.setAlpha(0.8f);
+
+
+    final Spinner spSize = (Spinner) vFilters.findViewById(R.id.spSize);
+    final Spinner spType = (Spinner) vFilters.findViewById(R.id.spType);
+    final Spinner spColor = (Spinner) vFilters.findViewById(R.id.spColor);
+    final EditText etSite = (EditText) vFilters.findViewById(R.id.etSite);
+
+    Button btnSave = (Button) vFilters.findViewById(R.id.btSave);
+    btnSave.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        vFilters.setVisibility(View.INVISIBLE);
+
+        SearchFilter newFilter = new SearchFilter();
+
+        if(!isAll(spSize.getSelectedItem().toString())) {
+          newFilter.setSize(spSize.getSelectedItem().toString());
+        }
+        if(!isAll(spType.getSelectedItem().toString())) {
+          newFilter.setType(spType.getSelectedItem().toString());
+        }
+        if(!isAll(spColor.getSelectedItem().toString())) {
+          newFilter.setColor(spColor.getSelectedItem().toString());
+        }
+        if(null != etSite.getText()) {
+          newFilter.setSite(etSite.getText().toString());
+        }
+
+        vFilters.setVisibility(View.INVISIBLE);
+
+        if(!newFilter.equals(searchFilter)) {
+          currentPage = 0;
+          searchFilter = newFilter;
+          searchImageAsync();
+        }
+      }
+    });
+
+    Button btnCancel = (Button) vFilters.findViewById(R.id.btCancel);
+    btnCancel.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        vFilters.setVisibility(View.INVISIBLE);
+      }
+    });
+  }
+
+  private boolean isAll(String selectedValue) {
+    return "ALL".equalsIgnoreCase(selectedValue);
+  }
+
+  private void searchImageAsync() {
     showHeaderProgress();
-    googleImageSearchApi.searchImage(q, "1.0", null, null, null, GoogleImageSearchApi.PAGE_SIZE, currentPage * GoogleImageSearchApi.PAGE_SIZE, new Callback<SearchImageResult>() {
+    Log.i(TAG, "Searching keyword : " + currentKeyword + ", filters : " + searchFilter);
+    googleImageSearchApi.searchImage(currentKeyword, "1.0", searchFilter.getType(), searchFilter.getSize(), searchFilter.getColor(), searchFilter.getSite(), GoogleImageSearchApi.PAGE_SIZE, currentPage * GoogleImageSearchApi.PAGE_SIZE, new Callback<SearchImageResult>() {
       @Override
       public void success(SearchImageResult searchImageResult, Response response) {
         Log.d(TAG, "Image search result : " + searchImageResult);
@@ -135,7 +184,7 @@ public class ImageSearchActivity extends ActionBarActivity {
         //miActionProgressItem.setVisible(true);
         currentPage = 0;
         currentKeyword = query;
-        searchImageAsync(query);
+        searchImageAsync();
 
         miFilter.setVisible(true);
 

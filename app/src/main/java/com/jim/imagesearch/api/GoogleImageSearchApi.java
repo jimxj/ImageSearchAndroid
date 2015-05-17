@@ -14,7 +14,11 @@ public interface GoogleImageSearchApi {
 
   @GET("/images")
   void searchImage(@Query("q") String keyword, @Query("v") String version,
-                                @Query("as_filetype") String fileType, @Query("imgsz") String imageSize, @Query("as_sitesearch") String site,
-                                @Query("rsz") int pageSize, @Query("start") int startIndex,
+                                @Query("as_filetype") String fileType,
+                                @Query("imgsz") String imageSize,
+                                @Query("imgcolor") String imageColor,
+                                @Query("as_sitesearch") String site,
+                                @Query("rsz") int pageSize,
+                                @Query("start") int startIndex,
                                 Callback<SearchImageResult> cb);
 }

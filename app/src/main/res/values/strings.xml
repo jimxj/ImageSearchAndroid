@@ -12,6 +12,7 @@
     <string name="btn_cancel">"Cancel"</string>
 
     <string-array name="image_size_filters">
+        <item>ALL</item>
         <item>icon</item>
 　　　　　<item>small</item>
 　　　　　<item>medium</item>
@@ -22,6 +23,7 @@
      </string-array>
 
     <string-array name="image_type_filters">
+        <item>ALL</item>
         <item>jpg</item>
         <item>png</item>
         <item>gif</item>
@@ -29,6 +31,7 @@
     </string-array>
 
     <string-array name="image_color_filters">
+        <item>ALL</item>
         <item>black</item>
         <item>blue</item>
         <item>brown</item>
