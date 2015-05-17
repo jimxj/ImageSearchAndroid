@@ -3,6 +3,7 @@ package com.jim.imagesearch.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -47,6 +48,12 @@ public class ImageSearchActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_image_search);
+
+    ActionBar actionBar = getSupportActionBar();
+    //actionBar.setDisplayShowTitleEnabled(false);
+    //actionBar.setDisplayUseLogoEnabled(true);
+    //actionBar.setDisplayShowHomeEnabled(true);
+    //actionBar.setIcon(R.drawable.ic_launcher);
 
     ButterKnife.inject(this);
     Fresco.initialize(this);

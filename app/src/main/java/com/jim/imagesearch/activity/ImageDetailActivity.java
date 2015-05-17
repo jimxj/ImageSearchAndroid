@@ -1,8 +1,17 @@
 package com.jim.imagesearch.activity;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -11,6 +20,8 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +29,10 @@ import com.jim.imagesearch.R;
 import com.jim.imagesearch.api.GoogleImageSearch;
 import com.jim.imagesearch.model.ImageResult;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -38,12 +53,23 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
 
   int currentIndex;
 
+  ImageResult imageResult;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    // Disable action bar animation
+    //https://developer.android.com/training/basics/actionbar/overlaying.html#EnableOverlay
+    //getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+    //getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_image_detail);
 
     ButterKnife.inject(this);
+
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setLogo(R.drawable.ic_launcher);
 
     // Instantiate the gesture detector with the
     // application context and an implementation of
@@ -55,6 +81,14 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
 
     currentIndex = getIntent().getIntExtra("imageIndex", 0);
     loadImageDetial(currentIndex);
+
+    hideOthers();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
   }
 
   @Override
@@ -101,7 +135,7 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
   }
 
   private ImageResult loadImageDetial(int index) {
-    ImageResult imageResult = null;
+    imageResult = null;
     if(index >= 0) {
       imageResult = GoogleImageSearch.getInstance().getImageResult(index);
       if (null != imageResult) {
@@ -130,7 +164,16 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
     int id = item.getItemId();
 
     //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
+    if (id == R.id.mi_share) {
+      Uri bmpUri = getLocalBitmapUri(ivBigImage);
+      if (bmpUri != null) {
+
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/html");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml("<p>\"" + imageResult.getTitle() + "\" by " + imageResult.getUrl() + "</p>"));
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+        startActivity(Intent.createChooser(sharingIntent, "Share a Image"));
+      }
       return true;
     }
 
@@ -189,7 +232,8 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
 
   @Override
   public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-    return false;
+    flipOthers();
+    return true;
   }
 
   @Override
@@ -200,5 +244,51 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
   @Override
   public boolean onDoubleTapEvent(MotionEvent motionEvent) {
     return false;
+  }
+
+  private void flipOthers() {
+    if(View.INVISIBLE == tvCaption.getVisibility()) {
+      showOthers();
+    } else {
+      hideOthers();;
+    }
+  }
+
+  private void hideOthers() {
+    getSupportActionBar().hide();
+    tvCaption.setVisibility(View.INVISIBLE);
+    tvSite.setVisibility(View.INVISIBLE);
+  }
+
+  private void showOthers() {
+    getSupportActionBar().show();
+    tvCaption.setVisibility(View.VISIBLE);
+    tvSite.setVisibility(View.VISIBLE);
+  }
+
+  // Returns the URI path to the Bitmap displayed in specified ImageView
+  public Uri getLocalBitmapUri(ImageView imageView) {
+    // Extract Bitmap from ImageView drawable
+    Drawable drawable = imageView.getDrawable();
+    Bitmap bmp = null;
+    if (drawable instanceof BitmapDrawable){
+      bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+    } else {
+      return null;
+    }
+    // Store image to default external storage directory
+    Uri bmpUri = null;
+    try {
+      File file =  new File(Environment.getExternalStoragePublicDirectory(
+              Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
+      file.getParentFile().mkdirs();
+      FileOutputStream out = new FileOutputStream(file);
+      bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+      out.close();
+      bmpUri = Uri.fromFile(file);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return bmpUri;
   }
 }

@@ -75,7 +75,7 @@ public class GoogleImageSearch {
   }
 
   public void searchImage(final AsyncResultCallback callback) {
-    Log.i(TAG, "Searching keyword : " + currentKeyword + ", filters : " + searchFilter);
+    Log.i(TAG, "----------Searching keyword : " + currentKeyword + ", filters : " + searchFilter + ", currentPage : " + currentPage);
     googleImageSearchApi.searchImage(currentKeyword, "1.0", searchFilter.getType(), searchFilter.getSize(), searchFilter.getColor(), searchFilter.getSite(), PAGE_SIZE, currentPage * PAGE_SIZE, new Callback<SearchImageResult>() {
       @Override
       public void success(SearchImageResult searchImageResult, Response response) {
