@@ -1,14 +1,18 @@
 package com.jim.imagesearch.activity;
 
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
 import com.etsy.android.grid.StaggeredGridView;
@@ -40,6 +44,9 @@ public class ImageSearchActivity extends ActionBarActivity {
   @InjectView(R.id.gvImages)
   StaggeredGridView gridView;
 
+  @InjectView(R.id.vFilters)
+  View vFilters;
+
   ImageGridArrayAdapter imageAdapter;
 
   MenuItem miFilter;
@@ -48,6 +55,8 @@ public class ImageSearchActivity extends ActionBarActivity {
   int currentPage = 0;
 
   String currentKeyword;
+
+  //DrawerLayout mDrawerLayout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +72,9 @@ public class ImageSearchActivity extends ActionBarActivity {
 
     imageAdapter = new ImageGridArrayAdapter(this, new ArrayList<ImageResult>());
     gridView.setAdapter(imageAdapter);
+
+    vFilters.setVisibility(View.INVISIBLE);
+    vFilters.setAlpha(0.8f);
 
     gridView.setOnScrollListener(new EndlessScrollListener() {
 
@@ -153,9 +165,26 @@ public class ImageSearchActivity extends ActionBarActivity {
     int id = item.getItemId();
 
     //noinspection SimplifiableIfStatement
-//    if (id == R.id.action_settings) {
-//      return true;
-//    }
+    if (id == R.id.mi_filter) {
+      if(vFilters.getVisibility() == View.INVISIBLE) {
+        vFilters.setVisibility(View.VISIBLE);
+      } else {
+        vFilters.setVisibility(View.INVISIBLE);
+      }
+
+//      LayoutInflater inflater = LayoutInflater.from(this);
+//      fileterView = inflater.inflate(R.layout.view_filters, null, false);
+//      fileterView.getBackground().setAlpha(80);
+//
+//      ViewGroup rootFrameLayout = (ViewGroup) this.getWindow().peekDecorView();
+//      rootFrameLayout.addView(fileterView, 1);
+//      PopupWindow popupwindow = new PopupWindow(fileterView ,400,300, true);
+//      popupwindow.setOutsideTouchable(true);
+//      popupwindow.setTouchable(true);
+//
+//      popupwindow.showAtLocation(getWindow().getDecorView(), Gravity.NO_GRAVITY, 400, 100);
+      return true;
+    }
 
     return super.onOptionsItemSelected(item);
   }
