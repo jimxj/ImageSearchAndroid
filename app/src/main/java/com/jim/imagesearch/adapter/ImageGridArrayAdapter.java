@@ -43,13 +43,13 @@ public class ImageGridArrayAdapter extends ArrayAdapter<ImageResult> {
     if(null == convertView) {
       convertView = LayoutInflater.from(getContext()).inflate(R.layout.grid_item_image, parent, false);
 
-      viewHolder.caption = (TextView) convertView.findViewById(R.id.tvCaption);
+      //viewHolder.caption = (TextView) convertView.findViewById(R.id.tvCaption);
       viewHolder.image = (ImageView) convertView.findViewById(R.id.ivImage);
 
       convertView.setTag(viewHolder);
     }
 
-    viewHolder.caption.setText(null != photo.getTitle() ? Html.fromHtml(photo.getTitle()) : "");
+    //viewHolder.caption.setText(null != photo.getTitle() ? Html.fromHtml(photo.getTitle()) : "");
     //viewHolder.image.setImageURI(Uri.parse(photo.getUrl()));
     //Fresco.initialize(getContext());
     Picasso.with(getContext()).load(Uri.parse(photo.getTbUrl())).placeholder(R.drawable.image_placeholder).into(viewHolder.image);

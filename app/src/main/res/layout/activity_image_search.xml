@@ -8,7 +8,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/gvImages"
-        app:item_margin="8dp"
+        app:item_margin="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:column_count="@integer/column_count" />
