@@ -109,7 +109,7 @@ public class GoogleImageSearch {
   }
 
   public ImageResult getImageResult(int i) {
-    Log.d(TAG, "------getImageResult, current page : " + currentPage +", page : " + i / PAGE_SIZE + ", i = " + i);
+    Log.d(TAG, "------getImageResult, current page : " + currentPage + ", page : " + i / PAGE_SIZE + ", i = " + i + ", resultList.size() = " + resultList.size());
     if(i < resultList.size() && i >= 0) {
       // pre-load
       if(toPreload(i)) {
@@ -130,15 +130,11 @@ public class GoogleImageSearch {
 
   private boolean toPreload(int i) {
     int pagePosition = i % PAGE_SIZE;
-    return pagePosition > PAGE_SIZE / 2 && i / PAGE_SIZE == currentPage - 1;
+    return pagePosition > PAGE_SIZE / 2 && resultList.size() < i + PAGE_SIZE;
   }
 
   public int getCurrentPage() {
     return currentPage;
-  }
-
-  public void setCurrentPage(int currentPage) {
-    this.currentPage = currentPage;
   }
 
   public String getCurrentKeyword() {
