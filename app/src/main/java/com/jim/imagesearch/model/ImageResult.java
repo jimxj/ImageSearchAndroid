@@ -122,6 +122,14 @@ public class ImageResult {
     return width;
   }
 
+  public int getWidthInt() {
+    return Integer.parseInt(width);
+  }
+
+  public int getHeightInt() {
+    return Integer.parseInt(height);
+  }
+
   /**
   * Builder for ImageResult
   **/

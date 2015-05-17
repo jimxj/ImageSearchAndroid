@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -15,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -28,7 +30,9 @@ import android.widget.TextView;
 import com.jim.imagesearch.R;
 import com.jim.imagesearch.api.GoogleImageSearch;
 import com.jim.imagesearch.model.ImageResult;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,6 +58,8 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
   int currentIndex;
 
   ImageResult imageResult;
+
+  int screenWidthInPixel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +89,10 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
     loadImageDetial(currentIndex);
 
     hideOthers();
+
+    DisplayMetrics metrics = new DisplayMetrics();
+    getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    screenWidthInPixel = metrics.widthPixels;
   }
 
   @Override
@@ -141,7 +151,34 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
       if (null != imageResult) {
         tvCaption.setText(Html.fromHtml(imageResult.getTitle()));
         tvSite.setText(imageResult.getVisibleUrl());
-        Picasso.with(this).load(Uri.parse(imageResult.getUrl())).into(ivBigImage);
+
+        new AsyncTask<Void, Void, Bitmap>() {
+
+          @Override
+          protected Bitmap doInBackground(Void... voids) {
+            try {
+              return Picasso.with(ImageDetailActivity.this)
+                      .load(Uri.parse(imageResult.getTbUrl()))
+                      .resize(imageResult.getWidthInt(),imageResult.getHeightInt())
+                      .networkPolicy(NetworkPolicy.OFFLINE)
+                      .get();
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            return null;
+          }
+
+          @Override
+          protected void onPostExecute(Bitmap bitmap) {
+            RequestCreator requestCreator = Picasso.with(ImageDetailActivity.this).load(Uri.parse(imageResult.getUrl()));
+            if(null != bitmap) {
+              requestCreator.placeholder(new BitmapDrawable(getResources(), bitmap));
+            }
+            requestCreator.into(ivBigImage);
+          }
+        }.execute();
+
+        //Picasso.with(this).load(Uri.parse(imageResult.getUrl())).placeholder(thumbnailDrawable).into(ivBigImage);
       }
     }
 
@@ -170,7 +207,7 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
 
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/html");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml("<p>\"" + imageResult.getTitle() + "\" by " + imageResult.getUrl() + "</p>"));
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml("<p>\"" + imageResult.getTitle() + "\" from " + imageResult.getUrl() + "</p>"));
         sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
         startActivity(Intent.createChooser(sharingIntent, "Share a Image"));
       }
