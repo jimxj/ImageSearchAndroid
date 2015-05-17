@@ -45,4 +45,5 @@
         <item>white</item>
         <item>yellow</item>
     </string-array>
+    <string name="title_activity_image_detail">ImageDetailActivity</string>
 </resources>
