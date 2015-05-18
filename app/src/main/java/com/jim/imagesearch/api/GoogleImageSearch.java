@@ -3,15 +3,15 @@
  */
 package com.jim.imagesearch.api;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.jim.imagesearch.connectivity.ConnectivityChangeReceiver;
 import com.jim.imagesearch.connectivity.ConnectivityManager;
 import com.jim.imagesearch.model.ImageResult;
 import com.jim.imagesearch.model.SearchFilter;
 import com.jim.imagesearch.model.SearchImageResult;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +19,6 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.converter.Converter;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
@@ -27,6 +26,8 @@ public class GoogleImageSearch {
   public static final String TAG = "GoogleImageSearch";
 
   public static final int PAGE_SIZE = 8;
+  public static final String GOOGLE_IMAGE_SEARCH_PARAMS = "GoogleImageSearchParams";
+  public static final String KEYWORD = "keyword";
 
   private int currentPage;
   private int totalPage;
@@ -138,6 +139,27 @@ public class GoogleImageSearch {
 
   public boolean hasChange() {
     return hasChange;
+  }
+
+  public void saveSearchParameters(Context context) {
+    SharedPreferences sharedPref = context.getSharedPreferences(GOOGLE_IMAGE_SEARCH_PARAMS, Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = sharedPref.edit();
+    editor.putString(KEYWORD, currentKeyword);
+    editor.putString("image-type", searchFilter.getType());
+    editor.putString("image-size", searchFilter.getSize());
+    editor.putString("image-color", searchFilter.getColor());
+    editor.putString("image-site", searchFilter.getSite());
+    editor.commit();
+  }
+
+  public void loadSearchParameters(Context context) {
+    SharedPreferences sharedPref = context.getSharedPreferences(GOOGLE_IMAGE_SEARCH_PARAMS, Context.MODE_PRIVATE);
+    currentKeyword = sharedPref.getString(KEYWORD, null);
+
+    searchFilter.setSize(sharedPref.getString("image-size", null));
+    searchFilter.setType(sharedPref.getString("image-type", null));
+    searchFilter.setColor(sharedPref.getString("image-color", null));
+    searchFilter.setSite(sharedPref.getString("image-site", null));
   }
 
   private boolean toPreload(int i) {

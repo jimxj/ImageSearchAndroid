@@ -67,7 +67,6 @@ public class ImageSearchActivity extends ActionBarActivity {
     Fresco.initialize(this);
     ConnectivityManager.initialize(this.getApplicationContext());
 
-
     ConnectivityManager.getInstance().registerListener(new ConnectivityListener() {
       @Override
       public void onConnectivityStatusChanged(int lastKnowStatus, int newStatus) {
@@ -136,6 +135,23 @@ public class ImageSearchActivity extends ActionBarActivity {
     if(GoogleImageSearch.getInstance().hasChange()) {
       imageAdapter.notifyDataSetChanged();
     }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+
+    GoogleImageSearch.getInstance().loadSearchParameters(this);
+    if(null != GoogleImageSearch.getInstance().getCurrentKeyword()) {
+      doSearchImageAsync();
+    }
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+
+    GoogleImageSearch.getInstance().saveSearchParameters(this);
   }
 
   private void doSearchImageAsync() {
@@ -229,20 +245,21 @@ public class ImageSearchActivity extends ActionBarActivity {
     //ProgressBar v =  (ProgressBar) MenuItemCompat.getActionView(miActionProgressItem);
     // Return to finish
 
-    // FIXME : for testing
-    //searchImage("dog");
-
     return super.onPrepareOptionsMenu(menu);
   }
 
   private void hideHeaderProgress() {
     //headerView.getLayoutParams().height = 0;
-    miActionProgressItem.setVisible(false);
+    if(null != miActionProgressItem) {  // onPrepareOptionsMenu may star later than onPrepareOptionsMenu
+      miActionProgressItem.setVisible(false);
+    }
   }
 
   private void showHeaderProgress() {
     //headerView.getLayoutParams().height = 0;
-    miActionProgressItem.setVisible(true);
+    if(null != miActionProgressItem) {
+      miActionProgressItem.setVisible(true);
+    }
   }
 
   private void initFilterView() {
