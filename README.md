@@ -29,7 +29,7 @@ Extra
 * [x] Search keyword and filters are saved in SharedPreferences
 
 ##GIF walkthrough
-![Demo](demo.gif)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/MFf8syyke_A/0.jpg)](http://www.youtube.com/watch?v=MFf8syyke_A)
 
 ##Credits
 * R2M : https://github.com/magnetsystems/r2m-plugin-android
