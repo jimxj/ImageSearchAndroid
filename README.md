@@ -26,6 +26,8 @@ Advanced
 * [x] Bonus: User can zoom or pan images displayed in full-screen detail view
 
 Extra
+* [x] Guesture (swipe) to navigate to previous/next image
+* [x] Low resolution image as place holder before high resolution image is loaded 
 * [x] Search keyword and filters are saved in SharedPreferences
 
 ##GIF walkthrough
