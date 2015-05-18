@@ -13,7 +13,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 import com.etsy.android.grid.StaggeredGridView;
@@ -21,11 +23,14 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.jim.imagesearch.R;
 import com.jim.imagesearch.adapter.ImageGridArrayAdapter;
 import com.jim.imagesearch.api.GoogleImageSearch;
+import com.jim.imagesearch.connectivity.ConnectivityListener;
+import com.jim.imagesearch.connectivity.ConnectivityManager;
 import com.jim.imagesearch.model.SearchFilter;
 import com.jim.imagesearch.util.EndlessScrollListener;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import retrofit.RetrofitError;
 
 
 public class ImageSearchActivity extends ActionBarActivity {
@@ -36,6 +41,9 @@ public class ImageSearchActivity extends ActionBarActivity {
 
   @InjectView(R.id.vFilters)
   View vFilters;
+
+  @InjectView(R.id.llNetworkStatus)
+  LinearLayout llNetworkStatus;
 
   ImageGridArrayAdapter imageAdapter;
 
@@ -57,6 +65,23 @@ public class ImageSearchActivity extends ActionBarActivity {
 
     ButterKnife.inject(this);
     Fresco.initialize(this);
+    ConnectivityManager.initialize(this.getApplicationContext());
+
+
+    ConnectivityManager.getInstance().registerListener(new ConnectivityListener() {
+      @Override
+      public void onConnectivityStatusChanged(int lastKnowStatus, int newStatus) {
+        if(newStatus == ConnectivityManager.TYPE_NOT_CONNECTED) {
+          llNetworkStatus.setVisibility(View.VISIBLE);
+        } else {
+          llNetworkStatus.setVisibility(View.INVISIBLE);
+        }
+      }
+    });
+
+    if(ConnectivityManager.TYPE_NOT_CONNECTED == ConnectivityManager.getInstance().getConnectivityStatus()) {
+      llNetworkStatus.setVisibility(View.VISIBLE);
+    }
 
     imageAdapter = new ImageGridArrayAdapter(this, GoogleImageSearch.getInstance().getResultList());
     gridView.setAdapter(imageAdapter);
@@ -84,6 +109,10 @@ public class ImageSearchActivity extends ActionBarActivity {
     imageSearchCallback = new GoogleImageSearch.AsyncResultCallback() {
       @Override
       public void onSuccess(boolean dataChange) {
+        if(View.VISIBLE == llNetworkStatus.getVisibility()) {
+          llNetworkStatus.setVisibility(View.INVISIBLE);
+        }
+
         hideHeaderProgress();
         if(dataChange) {
           imageAdapter.notifyDataSetChanged();
@@ -91,7 +120,10 @@ public class ImageSearchActivity extends ActionBarActivity {
       }
 
       @Override
-      public void onFailure() {
+      public void onFailure(RetrofitError error) {
+        if(error.getKind() == RetrofitError.Kind.NETWORK) {
+          llNetworkStatus.setVisibility(View.VISIBLE);
+        }
         hideHeaderProgress();
       }
     };
@@ -265,6 +297,10 @@ public class ImageSearchActivity extends ActionBarActivity {
 
   private boolean isAll(String selectedValue) {
     return "ALL".equalsIgnoreCase(selectedValue);
+  }
+
+  private void showNetworkError() {
+
   }
 
 }

@@ -5,10 +5,13 @@ package com.jim.imagesearch.api;
 
 import android.util.Log;
 
+import com.jim.imagesearch.connectivity.ConnectivityChangeReceiver;
+import com.jim.imagesearch.connectivity.ConnectivityManager;
 import com.jim.imagesearch.model.ImageResult;
 import com.jim.imagesearch.model.SearchFilter;
 import com.jim.imagesearch.model.SearchImageResult;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.converter.Converter;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
@@ -75,6 +79,14 @@ public class GoogleImageSearch {
   }
 
   public void searchImage(final AsyncResultCallback callback) {
+    if(ConnectivityManager.TYPE_NOT_CONNECTED == ConnectivityManager.getInstance().getConnectivityStatus()) {
+      if (null != callback) {
+        callback.onFailure(RetrofitError.networkError(null, null));
+      }
+
+      return;
+    }
+
     Log.i(TAG, "----------Searching keyword : " + currentKeyword + ", filters : " + searchFilter + ", currentPage : " + currentPage);
     googleImageSearchApi.searchImage(currentKeyword, "1.0", searchFilter.getType(), searchFilter.getSize(), searchFilter.getColor(), searchFilter.getSite(), PAGE_SIZE, currentPage * PAGE_SIZE, new Callback<SearchImageResult>() {
       @Override
@@ -102,7 +114,7 @@ public class GoogleImageSearch {
       public void failure(RetrofitError error) {
         Log.e(TAG, "Failed to search images : " + error);
         if (null != callback) {
-          callback.onFailure();
+          callback.onFailure(error);
         }
       }
     });
@@ -174,7 +186,7 @@ public class GoogleImageSearch {
 
   public static interface AsyncResultCallback {
     void onSuccess(boolean dataChanged);
-    void onFailure();
+    void onFailure(RetrofitError error);
   }
 
 }
