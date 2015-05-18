@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.jim.imagesearch.R;
 import com.jim.imagesearch.api.GoogleImageSearch;
 import com.jim.imagesearch.model.ImageResult;
+import com.ortiz.touch.TouchImageView;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -51,7 +52,7 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
   TextView tvSite;
 
   @InjectView(R.id.ivBigImage)
-  ImageView ivBigImage;
+  TouchImageView ivBigImage;
 
   private GestureDetectorCompat mDetector;
 
@@ -93,6 +94,27 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
     DisplayMetrics metrics = new DisplayMetrics();
     getWindowManager().getDefaultDisplay().getMetrics(metrics);
     screenWidthInPixel = metrics.widthPixels;
+
+    ivBigImage.setOnTouchImageViewListener(new TouchImageView.OnTouchImageViewListener() {
+      @Override
+      public void onMove() {
+        Log.d(TAG, "--------TouchImageView.OnTouchImageViewListener.onMove");
+      }
+    });
+    ivBigImage.setOnTouchListener(new View.OnTouchListener() {
+      @Override
+      public boolean onTouch(View view, MotionEvent motionEvent) {
+        Log.d(TAG, "--------TouchImageView.OnTouchListener.onTouch");
+        mDetector.onTouchEvent(motionEvent);
+        return true;
+      }
+    });
+    ivBigImage.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Log.d(TAG, "--------TouchImageView.OnClickListener.onClick");
+      }
+    });
   }
 
   @Override
