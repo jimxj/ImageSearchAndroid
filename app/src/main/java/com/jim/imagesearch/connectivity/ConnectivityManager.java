@@ -49,11 +49,13 @@ public class ConnectivityManager {
     int result = TYPE_UNKNOWN;
     NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
     if (null != activeNetwork) {
-      if(activeNetwork.getType() == android.net.ConnectivityManager.TYPE_WIFI)
-        result =  TYPE_WIFI;
-
-      if(activeNetwork.getType() == android.net.ConnectivityManager.TYPE_MOBILE)
-        result =  TYPE_MOBILE;
+      if(activeNetwork.getType() == android.net.ConnectivityManager.TYPE_WIFI) {
+        result = TYPE_WIFI;
+      } else if(activeNetwork.getType() == android.net.ConnectivityManager.TYPE_MOBILE) {
+        result = TYPE_MOBILE;
+      } else if(!activeNetwork.isConnectedOrConnecting()) {
+        result = TYPE_NOT_CONNECTED;
+      }
     }
 
     if(lastKnownStatus != result) {
@@ -96,18 +98,18 @@ public class ConnectivityManager {
   }
 
   private void notifyListeners(final int newStatus) {
-    new AsyncTask<Void, Void, Void>() {
-      @Override
-      protected Void doInBackground(Void... args) {
+//    new AsyncTask<Void, Void, Void>() {
+//      @Override
+//      protected Void doInBackground(Void... args) {
         for(WeakReference<ConnectivityListener> lr : listeners) {
           if(null != lr.get()) {
             lr.get().onConnectivityStatusChanged(lastKnownStatus, newStatus);
           }
         }
-
-        return null;
-      }
-    }.execute();
+//
+//        return null;
+//      }
+//    }.execute();
   }
 
   private WeakReference<ConnectivityListener> findListener(ConnectivityListener cl) {

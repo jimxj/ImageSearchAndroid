@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/tvCaption"
-        android:text="Cute Dog"
+        android:text=""
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,8 +43,18 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
+            android:paddingRight="10dp"/>
+
+        <ImageView
+            android:id="@+id/ivLink"
+            android:src="@drawable/link"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
             android:paddingRight="10dp"/>
     </RelativeLayout>
 </RelativeLayout>

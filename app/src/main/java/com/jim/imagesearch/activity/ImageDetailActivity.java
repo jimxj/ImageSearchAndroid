@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jim.imagesearch.R;
@@ -45,14 +46,20 @@ import butterknife.InjectView;
 public class ImageDetailActivity extends ActionBarActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
   public static final String TAG = "ImageDetailActivity";
 
-  @InjectView(R.id.tvCaption)
-  TextView tvCaption;
+//  @InjectView(R.id.tvCaption)
+//  TextView tvCaption;
 
   @InjectView(R.id.tvSite)
   TextView tvSite;
 
   @InjectView(R.id.ivBigImage)
   TouchImageView ivBigImage;
+
+  @InjectView(R.id.ivLink)
+  ImageView ivLink;
+
+  @InjectView(R.id.rlBottom)
+  RelativeLayout rlBottom;
 
   private GestureDetectorCompat mDetector;
 
@@ -75,7 +82,7 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
     ButterKnife.inject(this);
 
     ActionBar actionBar = getSupportActionBar();
-    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setDisplayShowTitleEnabled(true);
     actionBar.setLogo(R.drawable.ic_launcher);
 
     // Instantiate the gesture detector with the
@@ -115,6 +122,18 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
         Log.d(TAG, "--------TouchImageView.OnClickListener.onClick");
       }
     });
+
+    ivLink.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        openWebLink();
+      }
+    });
+  }
+
+  private void openWebLink() {
+    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageResult.getUrl()));
+    startActivity(Intent.createChooser(browserIntent, "Open the web page"));
   }
 
   @Override
@@ -171,7 +190,8 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
     if(index >= 0) {
       imageResult = GoogleImageSearch.getInstance().getImageResult(index);
       if (null != imageResult) {
-        tvCaption.setText(Html.fromHtml(imageResult.getTitle()));
+        //tvCaption.setText(Html.fromHtml(imageResult.getTitle()));
+        getSupportActionBar().setTitle(Html.fromHtml(imageResult.getTitle()));
         tvSite.setText(imageResult.getVisibleUrl());
 
         new AsyncTask<Void, Void, Bitmap>() {
@@ -306,23 +326,27 @@ public class ImageDetailActivity extends ActionBarActivity implements GestureDet
   }
 
   private void flipOthers() {
-    if(View.INVISIBLE == tvCaption.getVisibility()) {
+    if(View.INVISIBLE == rlBottom.getVisibility()) {
       showOthers();
     } else {
-      hideOthers();;
+      hideOthers();
     }
   }
 
   private void hideOthers() {
     getSupportActionBar().hide();
-    tvCaption.setVisibility(View.INVISIBLE);
-    tvSite.setVisibility(View.INVISIBLE);
+    //tvCaption.setVisibility(View.INVISIBLE);
+    //tvSite.setVisibility(View.INVISIBLE);
+    //ivLink.setVisibility(View.INVISIBLE);
+    rlBottom.setVisibility(View.INVISIBLE);
   }
 
   private void showOthers() {
     getSupportActionBar().show();
-    tvCaption.setVisibility(View.VISIBLE);
-    tvSite.setVisibility(View.VISIBLE);
+//    tvCaption.setVisibility(View.VISIBLE);
+    //tvSite.setVisibility(View.VISIBLE);
+    //ivLink.setVisibility(View.VISIBLE);
+    rlBottom.setVisibility(View.VISIBLE);
   }
 
   // Returns the URI path to the Bitmap displayed in specified ImageView

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +52,7 @@ public class ImageSearchActivity extends ActionBarActivity {
   MenuItem miActionProgressItem;
 
   GoogleImageSearch.AsyncResultCallback imageSearchCallback;
+  ConnectivityListener connectivityListener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,7 @@ public class ImageSearchActivity extends ActionBarActivity {
     Fresco.initialize(this);
     ConnectivityManager.initialize(this.getApplicationContext());
 
-    ConnectivityManager.getInstance().registerListener(new ConnectivityListener() {
+    connectivityListener = new ConnectivityListener() {
       @Override
       public void onConnectivityStatusChanged(int lastKnowStatus, int newStatus) {
         if(newStatus == ConnectivityManager.TYPE_NOT_CONNECTED) {
@@ -76,7 +78,8 @@ public class ImageSearchActivity extends ActionBarActivity {
           llNetworkStatus.setVisibility(View.INVISIBLE);
         }
       }
-    });
+    };
+    ConnectivityManager.getInstance().registerListener(connectivityListener);
 
     if(ConnectivityManager.TYPE_NOT_CONNECTED == ConnectivityManager.getInstance().getConnectivityStatus()) {
       llNetworkStatus.setVisibility(View.VISIBLE);
@@ -154,6 +157,13 @@ public class ImageSearchActivity extends ActionBarActivity {
     GoogleImageSearch.getInstance().saveSearchParameters(this);
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+
+    ConnectivityManager.getInstance().removeListener(connectivityListener);
+  }
+
   private void doSearchImageAsync() {
     showHeaderProgress();
 
@@ -182,6 +192,8 @@ public class ImageSearchActivity extends ActionBarActivity {
         doSearchImageAsync();
 
         miFilter.setVisible(true);
+
+        hideSoftKeyboard();
 
         return true;
       }
@@ -298,6 +310,8 @@ public class ImageSearchActivity extends ActionBarActivity {
         if (!newFilter.equals(GoogleImageSearch.getInstance().getSearchFilter())) {
           GoogleImageSearch.getInstance().setSearchFilter(newFilter);
           doSearchImageAsync();
+
+          hideSoftKeyboard();
         }
       }
     });
@@ -316,8 +330,14 @@ public class ImageSearchActivity extends ActionBarActivity {
     return "ALL".equalsIgnoreCase(selectedValue);
   }
 
-  private void showNetworkError() {
-
+  /**
+   * Hides the soft keyboard
+   */
+  public void hideSoftKeyboard() {
+    if(getCurrentFocus()!=null) {
+      InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+      inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
   }
 
 }
