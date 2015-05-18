@@ -1,7 +1,7 @@
 # ImageSearchAndroid
 A image search Android App using google image search API
 
-## Time spent : 15 hours
+## Time spent : 16 hours
 
 ## User Storeis
 Basic
@@ -15,6 +15,7 @@ Basic
   * [x] Subsequent searches will have any filters applied to the search results
 * [x] User can tap on any image in results to see the image full-screen
 * [x] User can scroll down “infinitely” to continue loading more image results (up to 8 pages)
+
 Advanced
 * [x] Advanced: Robust error handling, check if internet is available, handle error cases, network failures
 * [x] Advanced: Use the ActionBar SearchView or custom layout as the query box instead of an EditText
@@ -23,6 +24,7 @@ Advanced
 * [x] Advanced: Improve the user interface and experiment with image assets and/or styling and coloring
 * [x] Bonus: Use the StaggeredGridView to display improve the grid of image results
 * [x] Bonus: User can zoom or pan images displayed in full-screen detail view
+
 Extra
 * [x] Search keyword and filters are saved in SharedPreferences
 
